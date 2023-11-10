@@ -21,4 +21,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ${{ env.DOCKER_REG_ORG }}/${{ github.event.repository.name }}:latest, ${{ env.DOCKER_REG_ORG }}/${{ github.event.repository.name }}:${{ github.ref_name }}
+          tags: ${{ vars.DOCKER_REG_ORG }}/${{ github.event.repository.name }}:latest, ${{ vars.DOCKER_REG_ORG }}/${{ github.event.repository.name }}:${{ github.ref_name }}
+          cache-from: type=registry,ref=${{ vars.DOCKER_REG_ORG }}/${{ github.event.repository.name }}:latest
+          cache-to: type=inline
