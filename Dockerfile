@@ -1,4 +1,4 @@
-FROM golang:1.16-alpine as builder
+FROM golang:alpine as builder
 
 ARG USE_MIRROR
 
@@ -19,7 +19,7 @@ COPY . .
 
 RUN GOOS=linux go build -o /bin/app .
 
-FROM alpine
+FROM bitnami/kubectl:1.27.7
 LABEL maintainer="mail@dongfg.com"
 
 ARG USE_MIRROR
