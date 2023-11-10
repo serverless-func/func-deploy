@@ -55,11 +55,12 @@ func main() {
 			handleError(w, err)
 			return
 		}
-		if err = req.deploy(kubeconfig); err != nil {
+		out, err := req.deploy(kubeconfig)
+		if err != nil {
 			handleError(w, err)
 			return
 		}
-		_, _ = fmt.Fprintf(w, "success")
+		_, _ = fmt.Fprintf(w, out)
 	})
 
 	port := envOrDefault("FC_SERVER_PORT", "9000")
