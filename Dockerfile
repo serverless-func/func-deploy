@@ -22,13 +22,6 @@ RUN GOOS=linux go build -o /bin/app .
 FROM bitnami/kubectl:1.27.7
 LABEL maintainer="mail@dongfg.com"
 
-ARG USE_MIRROR
-
-RUN if [ "$USE_MIRROR" = "true" ]; then sed -i "s@https://dl-cdn.alpinelinux.org/@https://repo.huaweicloud.com/@g" /etc/apk/repositories; fi
-
-RUN apk update && \
-    apk add --no-cache tzdata
-
 ENV TZ=Asia/Shanghai
 
 COPY --from=builder /bin/app /bin/app
