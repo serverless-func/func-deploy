@@ -7,8 +7,8 @@ import (
 
 func TestUpdate(t *testing.T) {
 	var req = &funcUpdateReq{
-		name:    "func-crawler",
-		version: "23.11.1",
+		name:    "func-iptv",
+		version: "23.11.3",
 	}
 
 	repo := funcRepo{
@@ -23,8 +23,10 @@ func TestUpdate(t *testing.T) {
 		log.Panicln(err.Error())
 	}
 
-	err = req.deploy(envOrThrow("KUBE_CONFIG"))
+	out, err := req.deploy(envOrThrow("KUBE_CONFIG"))
 	if err != nil {
 		log.Panicln(err.Error())
+	} else {
+		log.Println(out)
 	}
 }

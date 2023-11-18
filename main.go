@@ -86,6 +86,7 @@ func envOrThrow(name string) string {
 }
 
 func handleError(w http.ResponseWriter, err error) {
+	log.Println("%w", err)
 	_, _ = fmt.Fprintf(w, err.Error())
 }
 
