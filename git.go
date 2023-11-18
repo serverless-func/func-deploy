@@ -18,12 +18,13 @@ func (req *funcUpdateReq) update(repo *funcRepo) error {
 	if err != nil {
 		return fmt.Errorf("fail to remove local repo : %w", err)
 	}
+	auth := &gitAuth.BasicAuth{
+		Username: repo.user,
+		Password: repo.password,
+	}
 	// clone iac repo
 	r, err := git.PlainClone(repoPath, false, &git.CloneOptions{
-		Auth: &gitAuth.BasicAuth{
-			Username: repo.user,
-			Password: repo.password,
-		},
+		Auth:     auth,
 		URL:      repo.url,
 		Progress: os.Stdout,
 	})
@@ -71,7 +72,9 @@ func (req *funcUpdateReq) update(repo *funcRepo) error {
 	}
 
 	// push changes
-	err = r.Push(&git.PushOptions{})
+	err = r.Push(&git.PushOptions{
+		Auth: auth,
+	})
 	if err != nil {
 		return fmt.Errorf("fail to push commit : %w", err)
 	}
