@@ -51,6 +51,10 @@ func main() {
 			handleError(w, err)
 			return
 		}
+		if req.version == "latest" {
+			_, _ = fmt.Fprintf(w, "skip deploy latest version")
+			return
+		}
 		if err = req.update(&repo); err != nil {
 			handleError(w, err)
 			return
