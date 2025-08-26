@@ -13,6 +13,7 @@ type GithubWebhook struct {
 	Action      string `json:"action"` // must be "completed"
 	WorkflowRun struct {
 		HeadBranch string `json:"head_branch"`
+		Path       string `json:"path"`
 	} `json:"workflow_run"`
 	Repository struct {
 		Name string `json:"name"`
@@ -104,8 +105,8 @@ func parse(r *http.Request) (*funcUpdateReq, error) {
 	if err != nil {
 		return nil, err
 	}
-	if webhook.Action != "completed" {
-		return nil, errors.New("workflow not completed")
+	if webhook.Action != "completed" || webhook.WorkflowRun.Path != ".github/workflows/build.yaml" {
+		return nil, errors.New("update condition not match")
 	}
 	return &funcUpdateReq{
 		name:    webhook.Repository.Name,
