@@ -1,9 +1,13 @@
 package main
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -98,10 +102,39 @@ func handleError(w http.ResponseWriter, err error) {
 	_, _ = fmt.Fprintf(w, err.Error())
 }
 
+func verifySignature(payload []byte, signatureHeader string) bool {
+	if signatureHeader == "" {
+		return false
+	}
+
+	if len(signatureHeader) < 7 || signatureHeader[:7] != "sha256=" {
+		return false
+	}
+	signature, err := hex.DecodeString(signatureHeader[7:])
+	if err != nil {
+		return false
+	}
+
+	mac := hmac.New(sha256.New, []byte(envOrThrow("WEBHOOK_SECRET")))
+	mac.Write(payload)
+	expectedSignature := mac.Sum(nil)
+	return hmac.Equal(expectedSignature, signature)
+}
+
 func parse(r *http.Request) (*funcUpdateReq, error) {
-	decoder := json.NewDecoder(r.Body)
+	signature := r.Header.Get("X-Hub-Signature-256")
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading request body: %w", err)
+	}
+	defer func() {
+		_ = r.Body.Close()
+	}()
+	if !verifySignature(body, signature) {
+		return nil, errors.New("invalid signature")
+	}
 	var webhook GithubWebhook
-	err := decoder.Decode(&webhook)
+	err = json.Unmarshal(body, &webhook)
 	if err != nil {
 		return nil, err
 	}
