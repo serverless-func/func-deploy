@@ -2,18 +2,21 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 )
 
-// CodingWebhook of image push
-type CodingWebhook struct {
-	Artifact struct {
-		ArtifactPkgName     string `json:"artifactPkgName"`
-		ArtifactVersionName string `json:"artifactVersionName"`
-	} `json:"artifact"`
+type GithubWebhook struct {
+	Action      string `json:"action"` // must be "completed"
+	WorkflowRun struct {
+		HeadBranch string `json:"head_branch"`
+	} `json:"workflow_run"`
+	Repository struct {
+		Name string `json:"name"`
+	} `json:"repository"`
 }
 
 type funcRepo struct {
@@ -45,7 +48,7 @@ func main() {
 	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = fmt.Fprintf(w, "pong")
 	})
-	http.HandleFunc("/coding", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/github", func(w http.ResponseWriter, r *http.Request) {
 		req, err := parse(r)
 		if err != nil {
 			handleError(w, err)
@@ -96,13 +99,16 @@ func handleError(w http.ResponseWriter, err error) {
 
 func parse(r *http.Request) (*funcUpdateReq, error) {
 	decoder := json.NewDecoder(r.Body)
-	var webhook CodingWebhook
+	var webhook GithubWebhook
 	err := decoder.Decode(&webhook)
 	if err != nil {
 		return nil, err
 	}
+	if webhook.Action != "completed" {
+		return nil, errors.New("workflow not completed")
+	}
 	return &funcUpdateReq{
-		name:    webhook.Artifact.ArtifactPkgName,
-		version: webhook.Artifact.ArtifactVersionName,
+		name:    webhook.Repository.Name,
+		version: webhook.WorkflowRun.HeadBranch,
 	}, nil
 }

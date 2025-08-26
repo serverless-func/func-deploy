@@ -11,7 +11,7 @@ spec:
   template:
     spec:
       containers:
-        - image: dongfg-docker.pkg.coding.net/serverless-func/docker/func-deploy:23.11.4 # 服务镜像
+        - image: docker.cnb.cool/dongfg/func/func-deploy:23.11.4 # 服务镜像
           ports:
             - containerPort: 9000 # 运行端口
           env:
