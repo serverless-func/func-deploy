@@ -2,7 +2,7 @@ module github.com/serverless-aliyun/fun-deploy
 
 go 1.24.1
 
-require github.com/go-git/go-git/v5 v5.17.2
+require github.com/go-git/go-git/v5 v5.18.0
 
 require (
 	dario.cat/mergo v1.0.2 // indirect
